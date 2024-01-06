@@ -30,6 +30,7 @@ public:
 
 	long getBalance() const {
 		return balance;
+
 	}
 
 	void setBalance(long _balance) {
@@ -42,6 +43,7 @@ public:
 
 	void setName(std::string _name) {
 		name = _name;
+		
 	}
 
 	std::string getDiseaseType() const {
