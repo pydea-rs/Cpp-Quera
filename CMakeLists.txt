@@ -4,4 +4,4 @@ project(Cpp_Quera)
 set(CMAKE_CXX_STANDARD 14)
 
 add_executable(Cpp_Quera
-        CharityWork/charity.loop.cpp)
+        RainHeight/rain_height.cpp)

@@ -77,9 +77,9 @@ long long int BintyCharity::fundsForNewCharities = 0;
 using namespace std;
 
 int main(int argc, char** argv) {
-	int n, q, resIndex = -1;
-	BintyCharity *charities = new BintyCharity[n];
-	long long int *responses = new long long int[n];
+	int n, q;
+	auto *charities = new BintyCharity[n];
+	string responses = "";
 
 	cin >> n >> q;
 	long long int limit;
@@ -94,10 +94,9 @@ int main(int argc, char** argv) {
 		int requestType = 0;
 		cin >> requestType;
 		uint targetId;
-
+		long long int supportAmount;
 		switch(requestType) {
 			case 1:
-				long long int supportAmount;
 				cin >> targetId >> supportAmount;
                 targetId--; // charity indexes started from 1
 				while(targetId < n && (supportAmount = charities[targetId++].collectFinancialSupport(supportAmount)) > 0);
@@ -107,7 +106,7 @@ int main(int argc, char** argv) {
 				break;
 			case 2:
 				cin >> targetId;
-				responses[++resIndex] = charities[targetId - 1].getBalance();
+				responses += to_string(charities[targetId - 1].getBalance()) + "\n";
 				break;
 			default:
 				cout << "Wrong request!";
@@ -115,7 +114,6 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	for(int i = 0; i <= resIndex; i++)
-		cout << responses[i] << endl;
+	cout << responses;
 	return 0;
 }

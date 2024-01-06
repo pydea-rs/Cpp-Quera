@@ -20,21 +20,21 @@ int main() {
 
         }
     }
-    wall = firstWall; prevWall = firstWall;
+    wall = firstWall + 1; prevWall = firstWall;
     int result = 0;
     while (wall != lastWall) {
 
-        if(*wall > 0) {
-            nextWall = wall + 1;
-            while(nextWall != lastWall && *(nextWall++) < *wall);
-            result += min(*prevWall, *wall, *nextWall);
-            int diff = *nextWall > *wall;
-            if(diff > 0)
-                result += diff;
+        nextWall = wall + 1;
+        while(nextWall != lastWall && *nextWall < *wall) nextWall++;
+        result += min(*prevWall, *wall, *nextWall);
+        int diff = *nextWall - *wall;
+        if(diff > 0)
+            result += diff;
+
+        if(*prevWall <= *wall)
             prevWall = wall;
-            if(*prevWall <= *wall)
-                prevWall = wall;
-        }
+
+        cout << result << endl;
         wall++;
     }
     cout << result;
