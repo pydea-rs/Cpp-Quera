@@ -3,23 +3,23 @@
 
 class BintyCharity {
 private:
-	static long fundsForNewCharity;
+	static long long int fundsForNewCharities;
 	uint id; // specifier in the chain
-	long financialLimit;
+	long long int financialLimit;
 	std::string name;
 	std::string diseaseType;
-	long balance;
+	long long int balance;
 
 public:
 	BintyCharity() {}
-	BintyCharity(int _id, long _limit, long _initialBalance = 0) : name("Unknown"), diseaseType("Unknown"), financialLimit(_limit), balance(_initialBalance), id(_id) {}
-	BintyCharity(uint _id, long _limit, long _initialBalance, std::string _name, std::string _diseaseType) :
+	BintyCharity(int _id, long long int _limit, long long int _initialBalance = 0) : name("Unknown"), diseaseType("Unknown"), financialLimit(_limit), balance(_initialBalance), id(_id) {}
+	BintyCharity(uint _id, long long int _limit, long long int _initialBalance, std::string _name, std::string _diseaseType) :
 		name(_name), diseaseType(_diseaseType), financialLimit(_limit), balance(_initialBalance), id(_id) {}
 
-	long collectFinancialSupport(long amount) {
-		long newBalance = balance + amount;
+	long long int collectFinancialSupport(long long int amount) {
+		long long int newBalance = balance + amount;
 		// std::cout << "balance = " << balance << ", newBal = " << newBalance << ", limit = " <<  financialLimit << std::endl;
-		long extra = newBalance - financialLimit;
+		long long int extra = newBalance - financialLimit;
 		if(extra > 0) {
 			balance = financialLimit;
 			return extra; // this is returned to be used on next charity
@@ -28,12 +28,14 @@ public:
 		return 0L;
 	}
 
-	long getBalance() const {
+	long long int getBalance() const {
 		return balance;
 
 	}
-
-	void setBalance(long _balance) {
+    static void collectFundsForNewCharities(long long int amount) {
+        BintyCharity::fundsForNewCharities += amount;
+    }
+	void setBalance(long long int _balance) {
 		balance = _balance;
 	}
 
@@ -54,11 +56,11 @@ public:
 		diseaseType = _type;
 	}
 
-	long getFinancialLimit() const {
+	long long int getFinancialLimit() const {
 		return financialLimit;
 	}
 
-	void setFinancialLimit(long _limit) {
+	void setFinancialLimit(long long int _limit) {
 		financialLimit = _limit;
 	}
 	void setID(uint _id) {
@@ -70,17 +72,17 @@ public:
 	}
 
 };
-long BintyCharity::fundsForNewCharity = 0;
+long long int BintyCharity::fundsForNewCharities = 0;
 
 using namespace std;
 
 int main(int argc, char** argv) {
 	int n, q, resIndex = -1;
 	BintyCharity *charities = new BintyCharity[n];
-	long *responses = new long[n];
+	long long int *responses = new long long int[n];
 
 	cin >> n >> q;
-	long limit;
+	long long int limit;
 	for(int i = 0; i < n; i++) {
 		charities[i].setID(i + 1);
 		cin >> limit;
@@ -95,10 +97,13 @@ int main(int argc, char** argv) {
 
 		switch(requestType) {
 			case 1:
-				long supportAmount;
+				long long int supportAmount;
 				cin >> targetId >> supportAmount;
-				while((supportAmount = charities[targetId - 1].collectFinancialSupport(supportAmount)) > 0)
-					targetId++;
+                targetId--; // charity indexes started from 1
+				while(targetId < n && (supportAmount = charities[targetId++].collectFinancialSupport(supportAmount)) > 0);
+
+                if(targetId >= n)
+                    BintyCharity::collectFundsForNewCharities(supportAmount);
 				break;
 			case 2:
 				cin >> targetId;
@@ -110,7 +115,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	for(; resIndex >= 0; resIndex--)
-		cout << responses[resIndex] << endl;
+	for(int i = 0; i <= resIndex; i++)
+		cout << responses[i] << endl;
 	return 0;
 }
