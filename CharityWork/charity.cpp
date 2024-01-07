@@ -3,137 +3,113 @@
 
 class BintyCharity {
 private:
-	static long fundsForNewCharity;
-	uint id; // specifier in the chain
-	long financialLimit;
-	std::string name;
-	std::string diseaseType;
-	long balance;
-	BintyCharity *next, *last;
-	// TODO: use array
-	// or use linked classes
+    static long long int fundsForNewCharity;
+    uint id; // specifier in the chain
+    long long int financialLimit;
+    long long int balance;
+    BintyCharity *next, *prev;
+    // TODO: use array
+    // or use linked classes
 public:
-	BintyCharity(long _limit, long _initialBalance = 0) : name("Unknown"), diseaseType("Unknown"), financialLimit(_limit), balance(_initialBalance), id(1), next(nullptr), last(this) {}
-	BintyCharity(long _limit, long _initialBalance, std::string _name, std::string _diseaseType, uint _id = 1) :
-		name(_name), diseaseType(_diseaseType), financialLimit(_limit), balance(_initialBalance), id(_id), next(nullptr), last(this) {}
+    BintyCharity(long long int _limit, long long int _initialBalance = 0) : financialLimit(_limit), balance(_initialBalance), id(1), next(nullptr), prev(nullptr) {}
+    BintyCharity(long long int _limit, long long int _initialBalance, std::string _name, std::string _diseaseType, uint _id = 1) :
+            financialLimit(_limit), balance(_initialBalance), id(_id), next(nullptr), prev(nullptr) {}
 
-	void collectFinancialSupport(long amount) {
-		long newBalance = balance + amount;
-		// std::cout << "balance = " << balance << ", newBal = " << newBalance << ", limit = " <<  financialLimit << std::endl;
-		if(newBalance > financialLimit) {
-			balance = financialLimit;
-			long extra = newBalance - financialLimit;
-			if(next != nullptr) {
-				next->collectFinancialSupport(extra);
-			} else {
-				BintyCharity::fundsForNewCharity += extra;
-			}
-		} else balance = newBalance;
+    void collectFinancialSupport(long long int amount) {
+        long long int newBalance = balance + amount;
+        // std::cout << "balance = " << balance << ", newBal = " << newBalance << ", limit = " <<  financialLimit << std::endl;
+        if(newBalance > financialLimit) {
+            balance = financialLimit;
+            long long int extra = newBalance - financialLimit;
+            if(next != nullptr) {
+                next->collectFinancialSupport(extra);
+            } else {
+                BintyCharity::fundsForNewCharity += extra;
+            }
+        } else balance = newBalance;
 
-	}
+    }
 
-	BintyCharity *get(uint _id) {
-		BintyCharity *c = this;
-		while (c != nullptr && c->getID() != _id) c = c->next;
-		return c;
-	}
+    BintyCharity *find(uint targetId) {
+        BintyCharity *c = this;
+        while (c != nullptr && c->getID() < targetId) c = c->next;
+        while (c != nullptr && c->getID() > targetId) c = c->prev;
 
-	long getBalance() const {
-		return balance;
-	}
+        return c;
+    }
 
-	void setBalance(long _balance) {
-		balance = _balance;
-	}
 
-	std::string getName() const {
-		return name;
-	}
+    long long int getBalance() const {
+        return balance;
+    }
 
-	void setName(std::string _name) {
-		name = _name;
-	}
+    void setBalance(long long int _balance) {
+        balance = _balance;
+    }
 
-	std::string getDiseaseType() const {
-		return diseaseType;
-	}
+    long long int getFinancialLimit() const {
+        return financialLimit;
+    }
 
-	void setDiseaseType(std::string _type) {
-		diseaseType = _type;
-	}
+    void setFinancialLimit(long long int _limit) {
+        financialLimit = _limit;
+    }
+    void setID(uint _id) {
+        id = _id;
+    }
 
-	long getFinancialLimit() const {
-		return financialLimit;
-	}
+    uint getID() const {
+        return id;
+    }
 
-	void setFinancialLimit(long _limit) {
-		financialLimit = _limit;
-	}
-	void setID(uint _id) {
-		id = _id;
-	}
-
-	uint getID() const {
-		return id;
-	}
-
-	void nextCharity(long _financialLimit, long _initialBalance = 0, std::string _name = "Unknown", std::string _diseaseType = "Unknown") {
-		last->next = new BintyCharity(_financialLimit, _initialBalance, _name, _diseaseType, last->getID() + 1);
-		last = last->next;
-		// std::cout << last->getID() << std::endl;
-	}
+    BintyCharity *nextCharity(long long int _financialLimit, long long int _initialBalance = 0, std::string _name = "Unknown", std::string _diseaseType = "Unknown") {
+        this->next = new BintyCharity(_financialLimit, _initialBalance, _name, _diseaseType, id + 1);
+        this->next->prev = this;
+        return this->next;
+        // std::cout << last->getID() << std::endl;
+    }
 };
-long BintyCharity::fundsForNewCharity = 0;
+long long int BintyCharity::fundsForNewCharity = 0;
 
 using namespace std;
 
 int main(int argc, char** argv) {
-	int n, q;
-	string response = "";
+    int n, q;
+    string response = "";
 
-	BintyCharity *charityChain = nullptr;
-	cin >> n >> q;
+    cin >> n >> q;
+    long long int limit = 0;
+    cin >> limit;
+    auto *charityChain = new BintyCharity(limit);
+    BintyCharity *curr = charityChain;
+    for(int i = 1; i < n; i++) {
+        cin >> limit;
+        curr = curr->nextCharity(limit);
+    }
 
-	for(int i = 0; i < n; i++) {
-		long limit = 0;
-		cin >> limit;
-		if(charityChain != nullptr)  {
-			charityChain->nextCharity(limit);
-		} else {
-			charityChain = new BintyCharity(limit);
-		}
-	}
+    // questions
+    curr = charityChain;
+    for(int i = 0; i < q; i++) {
+        int requestType = 0;
+        long long int supportAmount = 0L;
+        uint targetId;
+        cin >> requestType >> targetId;
+        curr = curr->find(targetId);
 
-	// questions
-	for(int i = 0; i < q; i++) {
-		int requestType = 0;
-		cin >> requestType;
-		uint targetId;
-		BintyCharity *target;
-		switch(requestType) {
-			case 1:
-				int supportAmount;
-				cin >> targetId >> supportAmount;
-				target = charityChain->get(targetId);
-				if(target != nullptr) {
-					target->collectFinancialSupport(supportAmount);
-				} else
-					cout << "Charity with id: "<< targetId << " Not Found!";
-				break;
-			case 2:
-				cin >> targetId;
-				target = charityChain->get(targetId);
-				if(target != nullptr) {
-					response += to_string(target->getBalance()) + "\n";
-				} else
-					cout << "Charity with id: "<< targetId << " Not Found!";
-				break;
-			default:
-				cout << "Wrong request!";
-				break;
-		}
-	}
+        switch(requestType) {
+            case 1:
+                cin >> supportAmount;
+                curr->collectFinancialSupport(supportAmount);
+                break;
+            case 2:
+                response += to_string(curr->getBalance()) + "\n";
+                break;
+            default:
+                cout << "Wrong request!";
+                break;
+        }
+    }
 
-	cout << response;
-	return 0;
+    cout << response;
+    return 0;
 }
